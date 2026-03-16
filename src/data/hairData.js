@@ -53,15 +53,7 @@ export function getRecommendation(currentLevel, currentPigment, targetLevel, tar
   const delta = targetLevel - currentLevel
 
   if (delta > 0) {
-    return {
-      type: 'lift',
-      severity: 'warning',
-      title: 'Pre-Lightening Required',
-      message: `Toner cannot lighten hair. Lift ${delta} level${delta > 1 ? 's' : ''} to reach Level ${targetLevel} before toning.`,
-      details: delta >= 3
-        ? 'Multiple bleach sessions will likely be needed. Assess hair integrity and underlying pigment between each session.'
-        : 'One bleach application may achieve this. Check hair condition and pigment before applying toner.',
-    }
+    return buildLiftFormula(currentLevel, currentPigment, targetLevel, targetTone)
   }
 
   if (delta < -2) {
@@ -77,7 +69,7 @@ export function getRecommendation(currentLevel, currentPigment, targetLevel, tar
   const needsHighLift = ['platinum', 'silver'].includes(targetTone) && targetLevel < 9
   if (needsHighLift) {
     return {
-      type: 'lift',
+      type: 'alert',
       severity: 'warning',
       title: `More Lift Required for ${targetTone.charAt(0).toUpperCase() + targetTone.slice(1)}`,
       message: `Platinum and silver toning requires a Level 9–10 base (very pale yellow).`,
@@ -97,6 +89,96 @@ export function getRecommendation(currentLevel, currentPigment, targetLevel, tar
   }
 
   return buildFormula(currentLevel, currentPigment, targetLevel, targetTone)
+}
+
+function buildLiftFormula(currentLevel, currentPigment, targetLevel, targetTone) {
+  const levelsOfLift = targetLevel - currentLevel
+  const expectedPigment = PIGMENTS.find(p => p.typicalFor.includes(targetLevel))
+    ?? PIGMENTS[PIGMENTS.length - 1]
+
+  const warnings = []
+  const tips = [
+    'Add a bond builder (Olaplex No.1 or Wellaplex No.1) to every bleach mix to protect integrity.',
+    'Check progress every 10 minutes. Remove as soon as target level is reached.',
+  ]
+  const ratio = '1:2 (lightener : developer)'
+
+  let method, developer, processTime, sessions
+  let products = [
+    'Wella Blondor Multi Blonde Powder',
+    'Schwarzkopf BlondMe Premium Lightener 9+',
+    'Redken Flash Lift Bonder Inside',
+  ]
+
+  if (levelsOfLift === 1) {
+    method = currentLevel >= 7 ? 'High-Lift Color or Bleach' : 'Bleach'
+    developer = currentLevel >= 7 ? '20–40 vol' : '20 vol'
+    processTime = '20–40 min'
+    sessions = 1
+    if (currentLevel >= 7) {
+      products = [
+        'Wella Illumina Color (40 vol) — for virgin hair',
+        'Schwarzkopf IGORA Royal Highlifts (40 vol) — for virgin hair',
+        'Wella Blondor + 20 vol — for previously colored hair',
+      ]
+      tips.push('High-lift color with 40 vol works on natural/virgin hair only. Use bleach for previously colored hair.')
+    } else {
+      tips.push('One bleach application should achieve this lift comfortably.')
+    }
+  } else if (levelsOfLift === 2) {
+    method = 'Bleach'
+    developer = '20–30 vol'
+    processTime = '30–45 min'
+    sessions = 1
+    tips.push('Use 20 vol for fine or previously damaged hair; 30 vol for coarse or resistant hair.')
+    tips.push('Apply mid-lengths and ends first; add roots during the final 10–15 minutes.')
+  } else if (levelsOfLift === 3) {
+    method = 'Bleach'
+    developer = '30 vol'
+    processTime = '40–55 min'
+    sessions = 1
+    warnings.push('3 levels of lift is aggressive — perform an elasticity test first. If hair stretches without snapping back, it may not tolerate a full bleach application.')
+    tips.push('Apply mid-lengths and ends first, roots last. Scalp heat accelerates lift at the root.')
+    tips.push('Follow immediately with a bond treatment (Olaplex No.2 or Wellaplex No.2).')
+  } else if (levelsOfLift <= 5) {
+    method = 'Bleach'
+    developer = '30–40 vol'
+    processTime = '40–60 min per session'
+    sessions = 2
+    warnings.push(`${levelsOfLift} levels of lift requires 2 bleach sessions. Allow at least 2 weeks between sessions for the hair to recover.`)
+    warnings.push('Do not attempt the full lift in a single session — this risks severe breakage and loss of elasticity.')
+    tips.push('After session 1: apply Olaplex No.2 or a bond reconstruction treatment and deep condition for 1–2 weeks before session 2.')
+    tips.push('Before session 2: perform a strand test and elasticity check to confirm the hair can withstand further processing.')
+  } else {
+    const estimatedSessions = Math.ceil(levelsOfLift / 2)
+    method = 'Bleach — Multiple Sessions'
+    developer = '30–40 vol'
+    processTime = '40–60 min per session'
+    sessions = estimatedSessions
+    warnings.push(`${levelsOfLift} levels of lift will require ${estimatedSessions}+ sessions over several weeks. This is a major transformation — set realistic expectations with your client before starting.`)
+    warnings.push('Perform a full consultation including hair history, texture, and elasticity assessment before any chemical service.')
+    tips.push('Schedule sessions 2–4 weeks apart. Deep condition and use bond treatments between every appointment.')
+    tips.push('At each session: do a strand test and elasticity check before applying bleach.')
+    tips.push('Consider a keratin or bond reconstruction series alongside the lightening process.')
+  }
+
+  // Toner step: compute the formula using the expected post-lift pigment
+  const tonerStep = buildFormula(targetLevel, expectedPigment.value, targetLevel, targetTone)
+
+  return {
+    type: 'lift',
+    levelsOfLift,
+    sessions,
+    method,
+    developer,
+    ratio,
+    processTime,
+    products,
+    expectedPigment,
+    warnings,
+    tips,
+    tonerStep,
+  }
 }
 
 function buildFormula(currentLevel, currentPigment, targetLevel, targetTone) {

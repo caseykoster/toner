@@ -566,3 +566,110 @@ body {
   left: 0;
   color: var(--accent);
 }
+
+/* ─── Lift Panel (two-step) ──────────────────────────────────────────────────── */
+.result-panel--lift {
+  padding: 0;
+  overflow: hidden;
+}
+
+.lift-step {
+  padding: 28px;
+}
+
+.lift-step--tone {
+  border-top: 2px solid var(--border);
+  background: var(--surface-2);
+}
+
+.step-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.step-number {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  font-family: var(--font-body);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.step-number--outline {
+  background: transparent;
+  color: var(--accent);
+  border: 2px solid var(--accent);
+}
+
+.step-header-text {
+  flex: 1;
+}
+
+.step-title {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 500;
+  color: var(--text-strong);
+  margin: 0 0 2px;
+  line-height: 1.2;
+}
+
+.step-meta {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--text-subtle);
+}
+
+/* Expected undertone */
+.expected-undertone {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+}
+
+.undertone-result {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-top: 8px;
+  padding: 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+}
+
+.undertone-dot {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid rgba(0,0,0,0.12);
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.undertone-name {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-strong);
+  margin-bottom: 3px;
+}
+
+.undertone-note {
+  font-size: 13px;
+  color: var(--text-subtle);
+  line-height: 1.5;
+}
